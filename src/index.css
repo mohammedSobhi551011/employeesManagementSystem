@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/Cairo/Cairo-VariableFont_slnt,wght.ttf") format("truetype");
+  font-weight: 200 1000;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "CalibriCustom";
+  src: url("/fonts/Calibri/calibri-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "CalibriCustom";
+  src: url("/fonts/Calibri/calibri-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "CalibriCustom";
+  src: url("/fonts/Calibri/calibri-italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "CalibriCustom";
+  src: url("/fonts/Calibri/calibri-bold-italic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: "Cairo", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+@media print {
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
+  nav {
+    display: none;
+  }
+  .overtime-request-preview-container {
+    border: none;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  table {
+    page-break-inside: avoid;
+  }
+}
+
+@layer components {
+  .overtime-request-table {
+    border: 1px black solid;
+    width: 100%;
+    th,
+    td {
+      border: 1px black solid;
+      font-size: 8pt;
+      padding: 2px;
+    }
+    td {
+      text-align: center;
+    }
+  }
+  .overtime-request-preview-container {
+    border: 1px black solid;
+  }
+}

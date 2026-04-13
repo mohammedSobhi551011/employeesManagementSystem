@@ -1,0 +1,124 @@
+import { z } from "zod";
+import { AttendanceStatuses } from "../types";
+import { t } from "i18next";
+
+export const AttendanceFormSchema = z.object({
+  employees: z
+    .array(
+      z.object({
+        id: z.string(),
+        status: z.enum(AttendanceStatuses, "Status is required"),
+        hoursLate: z.string(),
+        overtimeHours: z.string(),
+      }),
+    )
+    .min(1, "Select at least one employee"),
+  date: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date format",
+  }),
+  status: z.enum(AttendanceStatuses, "Status is required"),
+  overtimeHours: z.string(),
+});
+
+export type AttendanceFormData = z.infer<typeof AttendanceFormSchema>;
+
+export const EmployeeFormSchema = z.object({
+  name: z
+    .string()
+    .min(3, t("employees.create-form.name-min-error"))
+    .max(20, t("employees.create-form.name-max-error")),
+  jobNumber: z
+    .string()
+    .min(1, t("employees.create-form.jobNumber-min-error"))
+    .max(6, t("employees.create-form.jobNumber-max-error")),
+  transportation: z
+    .string()
+    .min(1, t("employees.create-form.transportation-min-error"))
+    .max(15, t("employees.create-form.transportation-max-error")),
+});
+
+export type EmployeeFormData = z.infer<typeof EmployeeFormSchema>;
+
+export const LoginFormSchema = z.object({
+  username: z.string().min(1, t("login.usernameRequired")),
+  password: z.string().min(1, t("login.passwordRequired")),
+});
+
+export type LoginFormData = z.infer<typeof LoginFormSchema>;
+
+export const UpdateAttendanceRecordFormSchema = z
+  .object({
+    status: z.enum(AttendanceStatuses, "Status is required"),
+    date: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: "Invalid date format",
+    }),
+    hoursLate: z.number().optional().nullable(),
+    overtimeHours: z.number().optional().nullable(),
+    note: z.string().optional().nullable(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.status === "Late" && !data.hoursLate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.invalid_type,
+        message: t("attendance.hoursLateRequired"),
+        expected: "non-negative number",
+        path: ["hoursLate"],
+      });
+    }
+    if (data.status === "Overtime" && !data.overtimeHours) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.invalid_type,
+        message: t("attendance.overtimeHoursRequired"),
+        expected: "non-negative number",
+        path: ["overtimeHours"],
+      });
+    }
+  });
+
+export type UpdateAttendanceRecordFormData = z.infer<
+  typeof UpdateAttendanceRecordFormSchema
+>;
+
+export const HomeFilterAttendanceFormSchema = z.object({
+  employeeId: z.string().nullable(),
+  fromDate: z.string().nullable(),
+  toDate: z.string().nullable(),
+  status: z.enum(AttendanceStatuses).nullable(),
+});
+
+export type HomeFilterAttendanceFormData = z.infer<
+  typeof HomeFilterAttendanceFormSchema
+>;
+
+export const OvertimeRequestFormSchema = z.object({
+  date: z.string().nonempty("Date must be selected."),
+  fromTime: z.string().nonempty(),
+  toTime: z.string().nonempty(),
+  employees: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string().nullable(),
+      transportation: z.string().nullable(),
+      jobNumber: z.string().nullable(),
+      selected: z.boolean(),
+      from: z
+        .string()
+        .optional()
+        .refine((val) => !val || /^\d{2}:\d{2}$/.test(val), "Invalid time"),
+      to: z
+        .string()
+        .optional()
+        .refine((val) => !val || /^\d{2}:\d{2}$/.test(val), "Invalid time"),
+    }),
+  ),
+});
+
+export type OvertimeRequestFormData = z.infer<typeof OvertimeRequestFormSchema>;
+
+export const OvertimeReportFilterFormSchema = z.object({
+  fromDate: z.string(),
+  toDate: z.string(),
+});
+export type OvertimeReportFilterData = z.infer<
+  typeof OvertimeReportFilterFormSchema
+>;

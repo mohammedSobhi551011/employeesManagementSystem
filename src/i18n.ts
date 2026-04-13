@@ -1,0 +1,32 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+import en from "./locales/en.json";
+import ar from "./locales/ar.json";
+
+const getInitialLanguage = (): string => {
+  try {
+    const saved = localStorage.getItem("appLanguage");
+    if (saved) return saved;
+  } catch (e) {
+    // ignore
+  }
+
+  const nav =
+    typeof navigator !== "undefined"
+      ? navigator.language || navigator.languages?.[0]
+      : "";
+  return nav && nav.startsWith("ar") ? "ar" : "en";
+};
+
+i18n.use(initReactI18next).init({
+  resources: {
+    en: { translation: en },
+    ar: { translation: ar },
+  },
+  lng: getInitialLanguage(),
+  fallbackLng: "en",
+  interpolation: { escapeValue: false },
+});
+
+export default i18n;

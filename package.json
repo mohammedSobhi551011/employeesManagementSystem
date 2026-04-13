@@ -1,0 +1,51 @@
+{
+  "name": "attendance",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "tauri": "tauri dev",
+    "tauri:build": "tauri build",
+    "android:build": "cd src-tauri/gen/android && ./gradlew installDebug -x installDebugAndroidTest",
+    "android:run": "adb shell monkey -p com.mohammed.attendance 1",
+    "android": "concurrently \"npm run dev\" \"npm run android:build-run\"",
+    "android:build-run": "npm run android:build && npm run android:run"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@tauri-apps/api": "^2.0.0",
+    "framer-motion": "^12.38.0",
+    "i18next": "^26.0.2",
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.72.0",
+    "react-hot-toast": "^2.6.0",
+    "react-i18next": "^17.0.1",
+    "react-router-dom": "^7.13.2",
+    "react-to-print": "^3.3.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.27",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.3.3",
+    "vite": "^8.0.1"
+  }
+}
