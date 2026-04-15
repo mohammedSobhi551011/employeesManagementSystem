@@ -12,7 +12,7 @@ export const AttendanceFormSchema = z.object({
         overtimeHours: z.string(),
       }),
     )
-    .min(1, "Select at least one employee"),
+    .min(1, t("attendance.selectEmployeesWarning")),
   date: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
   }),
@@ -94,23 +94,25 @@ export const OvertimeRequestFormSchema = z.object({
   date: z.string().nonempty("Date must be selected."),
   fromTime: z.string().nonempty(),
   toTime: z.string().nonempty(),
-  employees: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string().nullable(),
-      transportation: z.string().nullable(),
-      jobNumber: z.string().nullable(),
-      selected: z.boolean(),
-      from: z
-        .string()
-        .optional()
-        .refine((val) => !val || /^\d{2}:\d{2}$/.test(val), "Invalid time"),
-      to: z
-        .string()
-        .optional()
-        .refine((val) => !val || /^\d{2}:\d{2}$/.test(val), "Invalid time"),
-    }),
-  ),
+  employees: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().nullable(),
+        transportation: z.string().nullable(),
+        jobNumber: z.string().nullable(),
+        selected: z.boolean(),
+        from: z
+          .string()
+          .optional()
+          .refine((val) => !val || /^\d{2}:\d{2}$/.test(val), "Invalid time"),
+        to: z
+          .string()
+          .optional()
+          .refine((val) => !val || /^\d{2}:\d{2}$/.test(val), "Invalid time"),
+      }),
+    )
+    .min(1, t("overtime.request.selectEmployeesWarning")),
 });
 
 export type OvertimeRequestFormData = z.infer<typeof OvertimeRequestFormSchema>;
@@ -122,3 +124,17 @@ export const OvertimeReportFilterFormSchema = z.object({
 export type OvertimeReportFilterData = z.infer<
   typeof OvertimeReportFilterFormSchema
 >;
+
+export const MealsFormSchema = z.object({
+  date: z.string(),
+  employees: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().nullable(),
+        jobNumber: z.string().nullable(),
+      }),
+    )
+    .min(1, t("meals.selectEmployeesWarning")),
+});
+export type MealsFormData = z.infer<typeof MealsFormSchema>;

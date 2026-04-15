@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Button } from "./Button";
 import { LogOut } from "lucide-react";
+import { Button } from "./ui/Button";
 import { NavbarDropdown } from "./NavbarDropdown";
 
 export const Navbar = () => {
@@ -82,16 +82,17 @@ export const Navbar = () => {
                     name: t("nav.overtime.label"),
                   }}
                 />
-                {/* <Link
-                  to="/overtime"
+
+                <Link
+                  to="/meals"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    isActive("/overtime")
+                    isActive("/meals")
                       ? "bg-white text-blue-700"
                       : "hover:bg-blue-700 text-blue-100"
                   }`}
                 >
-                  {t("nav.overtime")}
-                </Link> */}
+                  {t("nav.meals")}
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-3">

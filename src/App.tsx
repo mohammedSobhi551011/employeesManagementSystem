@@ -6,7 +6,6 @@ import {
   useLocation,
 } from "react-router-dom";
 import type { ReactNode } from "react";
-import { Navbar } from "./components/ui/Navbar";
 import { Home } from "./pages/Home";
 import { Attendance } from "./pages/Attendance";
 import { Employees } from "./pages/Employees";
@@ -18,6 +17,8 @@ import AttendanceFilterProvider from "./contexts/AttendanceFilter";
 import EmployeesProvider from "./contexts/Employees";
 import { OvertimeRequest } from "./pages/OvertimeRequest";
 import OvertimeProvider from "./contexts/Overtime";
+import Meals from "./pages/Meals";
+import { Navbar } from "./components/Navbar";
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -73,6 +74,7 @@ function App() {
                           </OvertimeProvider>
                         }
                       />
+                      <Route path="/meals" element={<Meals />} />
                     </Routes>
                   </EmployeesProvider>
                 </div>
