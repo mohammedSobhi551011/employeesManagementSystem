@@ -9,7 +9,7 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
   const selectedDate = new Date(form.watch("date"));
   return (
     <div
-      className="mx-auto w-[20cm] h-[28cm]  p-16  overtime-request-preview-container font-calibri not-italic"
+      className="mx-auto w-[21cm] h-[29.7cm]  p-16  overtime-request-preview-container font-calibri not-italic"
       dir="ltr"
       ref={ref}
     >
@@ -78,7 +78,7 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
             </th>
             <th
               rowSpan={2}
-              style={{ width: "70px", height: "70px" }}
+              style={{ width: "90px", height: "70px" }}
               className=" relative text-start text-xs font-extrabold"
             >
               <div className="absolute left-1/2 -translate-x-1/2 bottom-1/2 translate-y-1/2 text-start -rotate-45 origin-center whitespace-nowrap">
@@ -109,11 +109,11 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
               <td></td>
               <td>{emp.from}</td>
               <td>{emp.to}</td>
-              <td className="text-[6pt]">{emp.transportation}</td>
+              <td className="text-[8pt]">{emp.transportation}</td>
             </tr>
           ))}
-          {selectedEmployees.length < 30 &&
-            new Array(30 - selectedEmployees.length).fill(0).map((_, index) => (
+          {selectedEmployees.length < 25 &&
+            new Array(25 - selectedEmployees.length).fill(0).map((_, index) => (
               <tr key={index + "-empty-row"}>
                 <td>&nbsp;</td>
                 <td></td>
