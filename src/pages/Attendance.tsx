@@ -319,9 +319,9 @@ export const Attendance = () => {
                   </p>
                 ) : (
                   employees.map((employee, index) => {
-                    const selected = form
-                      .watch("employees")
-                      .some((emp) => emp.id === employee.id);
+                    const selected = watchedEmployees.some(
+                      (emp) => emp.id === employee.id,
+                    );
                     const hasAttendanceToday =
                       todayAttendanceEmployees.includes(employee.id.toString());
                     return (
@@ -395,7 +395,6 @@ const EmployeesSelectionItem = ({
           disabled={hasAttendanceToday}
           className="border-4 border-black"
           id={employee.id}
-          onClick={(e) => e.stopPropagation()}
         />
         <label
           htmlFor={employee.id}
@@ -413,7 +412,7 @@ const EmployeesSelectionItem = ({
       </div>
 
       {selected && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ml-8">
+        <div className="grid grid-cols-1 gap-3 ml-8">
           <Controller
             control={form.control}
             name={`employees.${index}.status`}
