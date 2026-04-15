@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ITableColumn } from "../../types";
 
 interface ITableProps<T extends { id?: string }> {
@@ -6,6 +7,7 @@ interface ITableProps<T extends { id?: string }> {
   onRowClick?: (row: T) => void;
   loading?: boolean;
   isRTL?: boolean;
+  headerClassName?: string;
 }
 
 export const Table = <T extends { id?: string }>({
@@ -14,7 +16,9 @@ export const Table = <T extends { id?: string }>({
   onRowClick,
   loading,
   isRTL = false,
+  headerClassName,
 }: ITableProps<T>) => {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -26,7 +30,7 @@ export const Table = <T extends { id?: string }>({
   if (!data.length) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">No data available</p>
+        <p className="text-gray-500">{t("general.table-empty-data")}</p>
       </div>
     );
   }
@@ -41,7 +45,7 @@ export const Table = <T extends { id?: string }>({
                 key={String(col.key)}
                 className={`px-6 py-3 ${
                   isRTL ? "text-right" : "text-left"
-                } text-sm font-semibold text-gray-700`}
+                } text-sm font-semibold  ${headerClassName ? headerClassName : "text-gray-700"}`}
               >
                 {col.label}
               </th>
