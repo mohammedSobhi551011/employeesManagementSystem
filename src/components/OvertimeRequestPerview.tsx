@@ -18,7 +18,7 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
         <div className=" absolute left-1/2 -translate-x-1/2 bottom-0">
           <h1 className="font-bold text-xl">OVERTIME REQUEST</h1>
         </div>
-        <img width={"100px"} src="/FMC Logo.png" />
+        <img width={"100px"} src="/FMC Logo.svg" />
       </div>
 
       {/* Second-Header */}
@@ -97,7 +97,7 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
             <th style={{ width: "45px" }}>To</th>
           </tr>
         </thead>
-        <tbody className=" font-bold">
+        <tbody>
           {selectedEmployees.map((emp, index) => (
             <tr key={emp.id + "-request"}>
               <td></td>
