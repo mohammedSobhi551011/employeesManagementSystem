@@ -8,6 +8,7 @@
       "report": "التقرير",
       "request": "طلب الحضور"
     },
+    "meals": "الوجبات",
     "language": "اللّغة",
     "logout": "تسجيل الخروج"
   },
@@ -142,7 +143,15 @@
       "toTime": "إلى",
       "selectEmployeesLabel": "اختر الموظفين * ({{count}} مختار)",
       "selectAll": "تحديد الكل",
-      "print-hint": "يمكنك الضغط على Ctrl+P للطباعة"
+      "selectEmployeesWarning": "يرجى اختيار موظف واحد على الأقل"
+    }
+  },
+  "meals": {
+    "title": "وجبات الموظفين",
+    "subtitle": "يمكنك طباعة كشف وجبات الموظفين",
+    "selectEmployeesWarning": "يرجى اختيار موظف واحد على الأقل",
+    "preview": {
+      "main-title": "كشف وجبات قسم الجودة عن يوم"
     }
   },
   "login": {
@@ -153,6 +162,8 @@
     "error": "بيانات اعتماد غير صالحة"
   },
   "general": {
-    "unknownError": "حدث خطأ غير معروف"
+    "unknownError": "حدث خطأ غير معروف",
+    "table-empty-data": "لا يوجد بيانات",
+    "print-hint": "يمكنك الضغط على Ctrl+P للطباعة"
   }
 }

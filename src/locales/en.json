@@ -8,6 +8,7 @@
       "report": "Report",
       "request": "Request"
     },
+    "meals": "Meals",
     "language": "Language",
     "logout": "Logout"
   },
@@ -142,7 +143,15 @@
       "toTime": "To",
       "selectEmployeesLabel": "Select Employees * ({{count}} selected)",
       "selectAll": "Select All",
-      "print-hint": "You can press Ctrl+P to print"
+      "selectEmployeesWarning": "Please select at least one employee"
+    }
+  },
+  "meals": {
+    "title": "Employees Meals",
+    "subtitle": "You can print meals list",
+    "selectEmployeesWarning": "Please select at least one employee",
+    "preview": {
+      "main-title": "Q.C Meals List"
     }
   },
   "login": {
@@ -153,6 +162,8 @@
     "error": "Invalid credentials"
   },
   "general": {
-    "unknownError": "Unkown error"
+    "unknownError": "Unkown error",
+    "table-empty-data": "No data available",
+    "print-hint": "You can press Ctrl+P to print"
   }
 }
