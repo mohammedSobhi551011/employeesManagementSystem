@@ -61,7 +61,7 @@ export default function Login() {
             </svg>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            Attendance App
+            Employees Management System
           </h1>
           <p className="text-blue-100">Sign in to continue</p>
         </div>
