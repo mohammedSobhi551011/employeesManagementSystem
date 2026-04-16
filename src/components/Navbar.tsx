@@ -31,7 +31,7 @@ export const Navbar = () => {
             <div className="flex items-center gap-8">
               <div className="flex gap-x-4 items-center">
                 <img src="attendance_6612036.png" className="w-8 aspect-auto" />
-                <h1 className="text-2xl font-bold"> {t("nav.attendance")}</h1>
+                <h1 className="text-2xl font-bold"> {t("nav.appName")}</h1>
               </div>
               <div className="flex gap-1">
                 <Link
