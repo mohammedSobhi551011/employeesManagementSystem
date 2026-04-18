@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AttendanceStatuses, InferSchema } from "../types";
-import { t, TFunction } from "i18next";
+import { TFunction } from "i18next";
 
 export const AttendanceFormSchema = (t: TFunction) =>
   z.object({
@@ -31,15 +31,15 @@ export const EmployeeFormSchema = (t: TFunction) =>
     name: z
       .string()
       .min(3, t("employees.create-form.name-min-error"))
-      .max(20, t("employees.create-form.name-max-error")),
+      .max(25, t("employees.create-form.name-max-error")),
     jobNumber: z
       .string()
       .min(1, t("employees.create-form.jobNumber-min-error"))
       .max(6, t("employees.create-form.jobNumber-max-error")),
     transportation: z
       .string()
-      .min(1, t("employees.create-form.transportation-min-error"))
-      .max(15, t("employees.create-form.transportation-max-error")),
+      .min(3, t("employees.create-form.transportation-min-error"))
+      .max(20, t("employees.create-form.transportation-max-error")),
   });
 
 export type EmployeeFormData = InferSchema<typeof EmployeeFormSchema>;
@@ -86,7 +86,7 @@ export type UpdateAttendanceRecordFormData = InferSchema<
   typeof UpdateAttendanceRecordFormSchema
 >;
 
-export const HomeFilterAttendanceFormSchema = (t: TFunction) =>
+export const HomeFilterAttendanceFormSchema = () =>
   z.object({
     employeeId: z.string().nullable(),
     fromDate: z.string().nullable(),
@@ -128,7 +128,7 @@ export type OvertimeRequestFormData = InferSchema<
   typeof OvertimeRequestFormSchema
 >;
 
-export const OvertimeReportFilterFormSchema = (t: TFunction) =>
+export const OvertimeReportFilterFormSchema = () =>
   z.object({
     fromDate: z.string(),
     toDate: z.string(),
