@@ -32,7 +32,7 @@ export interface AttendanceFilter {
   status: string | null;
 }
 
-export type OvertimeRecord = [string, string, number]; // [employeeId, name, totalOvertimeHours]
+export type OvertimeRecord = [string, string, number, number]; // [employeeId, name, totalOvertimeHours,total_overtime_days]
 
 export const AttendanceStatuses = [
   "Present",

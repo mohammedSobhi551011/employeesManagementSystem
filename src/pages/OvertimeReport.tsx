@@ -67,6 +67,7 @@ export const OvertimeReport = () => {
     _rowNumber: number;
     employeeName: string;
     totalHours: number;
+    totalOvertimeDays: number;
   }>[] = [
     {
       key: "_rowNumber",
@@ -80,6 +81,10 @@ export const OvertimeReport = () => {
       key: "totalHours",
       label: t ? t("overtime.report.totalHours") : "Total Overtime Hours",
     },
+    {
+      key: "totalOvertimeDays",
+      label: t ? t("overtime.report.totalDays") : "Total Days",
+    },
   ];
 
   const formattedOvertimeData = useMemo(
@@ -92,6 +97,7 @@ export const OvertimeReport = () => {
           _rowNumber: idx + 1,
           employeeName: record[1],
           totalHours: record[2],
+          totalOvertimeDays: record[3],
         })),
     [overtimeData],
   );

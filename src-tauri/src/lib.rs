@@ -248,17 +248,20 @@ fn get_overtime_by_date_range(
   db_path: tauri::State<'_, String>,
   from_date: String,
   to_date: String,
-) -> Result<Vec<(String, String, f64)>, String> {
+) -> Result<Vec<(String, String, f64,f64)>, String> {
   let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
   let mut stmt = conn
     .prepare(
-      "SELECT e.id, e.name, COALESCE(SUM(a.overtimeHours), 0) as total_overtime FROM employees e LEFT JOIN attendance a ON e.id = a.employeeId WHERE a.date BETWEEN ? AND ? GROUP BY e.id, e.name ORDER BY e.name",
+      "SELECT e.id, e.name, COALESCE(SUM(a.overtimeHours), 0) as total_overtime,
+      COALESCE(
+        SUM(CASE WHEN a.status = 'Overtime' AND a.overtimeHours > 0 THEN 1 ELSE 0 END)
+      ,0) as overtime_days FROM employees e LEFT JOIN attendance a ON e.id = a.employeeId WHERE a.date BETWEEN ? AND ? GROUP BY e.id, e.name ORDER BY e.name",
     )
     .map_err(|e| e.to_string())?;
 
   let rows = stmt
     .query_map([&from_date, &to_date], |row| {
-      Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, f64>(2)?))
+      Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, f64>(2)?,row.get::<_, f64>(3)?))
     })
     .map_err(|e| e.to_string())?;
 

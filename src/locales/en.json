@@ -134,7 +134,8 @@
       "noData": "No overtime records found",
       "selectBothDates": "Please select both dates",
       "fromDateAfterTo": "From date must be before To date",
-      "loadError": "Error loading overtime data"
+      "loadError": "Error loading overtime data",
+      "totalDays": "Total Overtime Days"
     },
     "request": {
       "title": "Overtime Request",
