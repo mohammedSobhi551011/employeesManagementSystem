@@ -10,6 +10,7 @@ import {
 
 interface IEmployeesContext {
   employees: Employee[];
+  loadEmployees: () => Promise<void>;
   addEmployee: (employee: Omit<Employee, "id">) => Promise<Employee>;
   updateEmployee: (
     id: string,
@@ -28,17 +29,18 @@ export default function EmployeesProvider({
 }) {
   const [employees, setEmployees] = useState<Employee[]>([]);
 
+  const loadEmployees = async (): Promise<void> => {
+    try {
+      const data = await getEmployees();
+      setEmployees(data || []);
+    } catch (e) {
+      console.error("Failed to load employees:", e);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
-    const load = async (): Promise<void> => {
-      try {
-        const data = await getEmployees();
-        if (mounted) setEmployees(data || []);
-      } catch (e) {
-        console.error("Failed to load employees:", e);
-      }
-    };
-    load();
+    if (mounted) loadEmployees();
     return () => {
       mounted = false;
     };
@@ -76,6 +78,7 @@ export default function EmployeesProvider({
     <EmployeesContext
       value={{
         employees,
+        loadEmployees,
         addEmployee,
         updateEmployee,
         deleteEmployee,

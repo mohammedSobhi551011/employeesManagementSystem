@@ -35,6 +35,7 @@ struct AttendanceFilter {
   status: Option<String>,
 }
 
+
 fn init_db(path: &PathBuf) -> Result<(), String> {
   let conn = Connection::open(path).map_err(|e| e.to_string())?;
   conn.execute_batch(
@@ -63,6 +64,7 @@ fn init_db(path: &PathBuf) -> Result<(), String> {
 
 #[tauri::command]
 fn get_employees(db_path: tauri::State<'_, String>) -> Result<Vec<Employee>, String> {
+
   let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
   let mut stmt = conn
     .prepare("SELECT id, name, jobNumber, transportation FROM employees")
@@ -179,14 +181,14 @@ fn delete_attendance_by_employee_id(db_path: tauri::State<'_, String>, employee_
 #[tauri::command]
 fn get_attendance_filtered(
   db_path: tauri::State<'_, String>,
-  filter: AttendanceFilter,
+  filters: AttendanceFilter,
 ) -> Result<Vec<AttendanceRecord>, String> {
   let AttendanceFilter {
     employee_id,
     from_date,
     to_date,
     status,
-  } = filter;
+  } = filters;
 
   let conn = Connection::open(&*db_path).map_err(|e| format!("Failed to open database: {}", e))?;
 
@@ -246,17 +248,20 @@ fn get_overtime_by_date_range(
   db_path: tauri::State<'_, String>,
   from_date: String,
   to_date: String,
-) -> Result<Vec<(String, String, f64)>, String> {
+) -> Result<Vec<(String, String, f64,f64)>, String> {
   let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
   let mut stmt = conn
     .prepare(
-      "SELECT e.id, e.name, COALESCE(SUM(a.overtimeHours), 0) as total_overtime FROM employees e LEFT JOIN attendance a ON e.id = a.employeeId WHERE a.date BETWEEN ? AND ? GROUP BY e.id, e.name ORDER BY e.name",
+      "SELECT e.id, e.name, COALESCE(SUM(a.overtimeHours), 0) as total_overtime,
+      COALESCE(
+        SUM(CASE WHEN a.status = 'Overtime' AND a.overtimeHours > 0 THEN 1 ELSE 0 END)
+      ,0) as overtime_days FROM employees e LEFT JOIN attendance a ON e.id = a.employeeId WHERE a.date BETWEEN ? AND ? GROUP BY e.id, e.name ORDER BY e.name",
     )
     .map_err(|e| e.to_string())?;
 
   let rows = stmt
     .query_map([&from_date, &to_date], |row| {
-      Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, f64>(2)?))
+      Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, f64>(2)?,row.get::<_, f64>(3)?))
     })
     .map_err(|e| e.to_string())?;
 
@@ -265,6 +270,49 @@ fn get_overtime_by_date_range(
     results.push(r.map_err(|e| e.to_string())?);
   }
   Ok(results)
+}
+
+#[tauri::command]
+fn import_employees(
+    db_path: tauri::State<'_, String>,
+    employees: Vec<Employee>,
+) -> Result<(), String> {
+    let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
+
+    for emp in employees {
+        conn.execute(
+            "INSERT OR REPLACE INTO employees (id, name, jobNumber, transportation)
+             VALUES (?1, ?2, ?3, ?4)",
+            params![
+                emp.id,
+                emp.name,
+                emp.jobNumber,
+                emp.transportation
+            ],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}
+
+
+#[tauri::command]
+fn import_attendance_records(
+    db_path: tauri::State<'_, String>,
+    records: Vec<AttendanceRecord>,
+) -> Result<(), String> {
+    let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
+
+    for rec in records {
+        conn.execute(
+            "INSERT OR REPLACE INTO attendance (id, employeeId, date, status, jobNumber, note, hoursLate, overtimeHours) VALUES (?1,?2,?3,?4,?5,?6,?7,?8)",
+            params![rec.id, rec.employeeId, rec.date, rec.status, rec.jobNumber, rec.note, rec.hoursLate, rec.overtimeHours],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
@@ -305,7 +353,7 @@ pub fn run() {
 
       // initialize DB path in app data dir
       // resolve a platform-appropriate data directory using `directories`
-      let proj = match ProjectDirs::from("com", "you", "attendance") {
+      let proj = match ProjectDirs::from("com", "you", "ems") {
         Some(p) => p,
         None => return Err("cannot resolve project directories".into()),
       };
@@ -315,7 +363,7 @@ pub fn run() {
         return Err(format!("failed to create app data dir: {}", e).into());
       }
 
-      let db_path = data_dir.join("attendance.db");
+      let db_path = data_dir.join("ems.db");
       if let Err(e) = init_db(&db_path) {
         return Err(format!("failed to initialize database: {}", e).into());
       }
@@ -324,7 +372,9 @@ pub fn run() {
       let db_path_str = db_path.to_string_lossy().to_string();
       app.manage(db_path_str);
       Ok(())
-    })
+    }) 
+    .plugin(tauri_plugin_dialog::init())  
+    .plugin(tauri_plugin_fs::init())     
     .invoke_handler(tauri::generate_handler![
       get_employees,
       add_employee,
@@ -337,7 +387,9 @@ pub fn run() {
       delete_attendance,
       delete_attendance_by_employee_id,
       get_attendance_filtered,
-      get_overtime_by_date_range
+      get_overtime_by_date_range,
+      import_employees,
+      import_attendance_records
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
