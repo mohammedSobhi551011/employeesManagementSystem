@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 
 interface IUseImportExportProps<T> {
   keys: string[];
-  onDataImported?: (data: T) => void;
-  onDataExported?: () => void;
+  onDataImported?: (data: T) => Promise<void>;
+  onDataExported?: () => Promise<void>;
 }
 export const useImportExport = <T>({
   keys,
@@ -14,15 +14,11 @@ export const useImportExport = <T>({
   onDataImported,
 }: IUseImportExportProps<T>) => {
   const { t } = useTranslation();
-  const [imported, setImported] = useState(false);
-  const [exported, setExported] = useState(false);
-  const [importedData, setImportedData] = useState<T | null>(null);
-  const exportData = async () => {
+  const [importing, setImporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const exportData = async (data: T) => {
     try {
-      const data = Object.fromEntries(
-        keys.map((key) => [key, JSON.parse(localStorage.getItem(key) || "[]")]),
-      );
-
+      setExporting(true);
       const filePath = await save({
         defaultPath:
           keys.join("_") + `-${new Date().getTime()}-` + "backup.json",
@@ -32,12 +28,12 @@ export const useImportExport = <T>({
       if (!filePath) return;
 
       await writeTextFile(filePath, JSON.stringify(data, null, 2));
-      setExported(true);
-      onDataExported && onDataExported();
+      onDataExported && (await onDataExported());
+      setExporting(false);
     } catch (error) {
-      setExported(false);
       console.error("Export ERROR:", error);
       alert(t("export.error"));
+      setExporting(false);
     }
   };
 
@@ -52,6 +48,7 @@ export const useImportExport = <T>({
 
   const importData = async () => {
     try {
+      setImporting(true);
       const filePath = await pickFile();
       if (!filePath) return;
 
@@ -61,23 +58,20 @@ export const useImportExport = <T>({
 
       // send to backend
       // await window.__TAURI__.invoke("import_data", { data });
-      setImported(true);
-      onDataImported && onDataImported(data);
-      setImportedData(data);
+
+      onDataImported && (await onDataImported(data));
+      setImporting(false);
     } catch (err) {
-      setImported(false);
       console.error("IMPORT ERROR:", err);
       alert(t("import.error"));
+      setImporting(false);
     }
   };
 
   return {
     exportData,
     importData,
-    imported,
-    exported,
-    setImported,
-    setExported,
-    importedData,
+    importing,
+    exporting,
   };
 };

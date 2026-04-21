@@ -10,9 +10,10 @@ import { Employee, ITableColumn } from "../types";
 import CreateUpdateEmployeeForm from "../components/forms/CreateUpdateEmployeeForm";
 import { useEmployees } from "../contexts/Employees";
 import { useImportExport } from "../hooks/useImportExport";
+import { exportEmployees, importEmployees } from "../utils/storage";
 
 export const Employees = () => {
-  const { employees, deleteEmployee } = useEmployees();
+  const { employees, deleteEmployee, loadEmployees } = useEmployees();
 
   const { deleteAttendanceRecordsByEmployeeId } = useAttendance();
   const { t, i18n } = useTranslation();
@@ -73,8 +74,19 @@ export const Employees = () => {
     },
   ];
 
-  const { exportData, importData, imported, setImported, importedData } =
-    useImportExport<{ employees: Employee[] }>({ keys: ["employees"] });
+  const { exportData, importData } = useImportExport<{ employees: Employee[] }>(
+    {
+      keys: ["employees"],
+      onDataImported: async (data) => {
+        await importEmployees(data.employees);
+        await loadEmployees();
+        toast.success(t("import.success"));
+      },
+      onDataExported: async () => {
+        toast.success(t("export.success"));
+      },
+    },
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
@@ -90,7 +102,14 @@ export const Employees = () => {
           </div>
           <div className="flex gap-4 items-center">
             <div className="flex gap-2 items-center">
-              <Button onClick={exportData} size="sm" variant="ghost">
+              <Button
+                onClick={async () => {
+                  const data = await exportEmployees();
+                  await exportData({ employees: data });
+                }}
+                size="sm"
+                variant="ghost"
+              >
                 <ArrowUp size={20} />
               </Button>
               <Button onClick={importData} size="sm" variant="ghost">
@@ -183,28 +202,6 @@ export const Employees = () => {
               {t ? t("employees.cancel") : "Cancel"}
             </Button>
           </div>
-        </Modal>
-
-        <Modal
-          isOpen={imported}
-          title={t("import.dataLabel")}
-          onClose={() => setImported(false)}
-        >
-          <Table
-            columns={columns.filter((col) => col.key !== "actions")}
-            data={
-              importedData && importedData.employees
-                ? importedData.employees.map((emp, index) => ({
-                    ...emp,
-                    _rowNumber: index + 1,
-                    actions: "",
-                  }))
-                : []
-            }
-            isRTL={i18n.language === "ar"}
-          />
-
-          {/* TODO: Add Actions to save imported data */}
         </Modal>
       </div>
     </div>

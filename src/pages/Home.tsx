@@ -12,6 +12,10 @@ import { useAttendanceFilter } from "../contexts/AttendanceFilter";
 import { useEmployees } from "../contexts/Employees";
 import { useImportExport } from "../hooks/useImportExport";
 import toast from "react-hot-toast";
+import {
+  exportAttendanceRecords,
+  importAttendanceRecords,
+} from "../utils/storage";
 
 export const Home = () => {
   const { employees } = useEmployees();
@@ -141,17 +145,19 @@ export const Home = () => {
     },
   ];
 
-  const { exportData, importData, imported, setImported, importedData } =
-    useImportExport<{
-      attendance: AttendanceRecord[];
-    }>({
-      keys: ["attendance"],
-      onDataExported: () => toast.success(t("export.success")),
-      onDataImported: (data) => {
-        toast.success(t("import.success"));
-        console.log("imported data: ", data);
-      },
-    });
+  const { exportData, importData } = useImportExport<{
+    attendance: AttendanceRecord[];
+  }>({
+    keys: ["attendance"],
+    onDataExported: async () => {
+      toast.success(t("export.success"));
+    },
+    onDataImported: async (data) => {
+      await importAttendanceRecords(data.attendance);
+      await loadFilteredData(currentPage);
+      toast.success(t("import.success"));
+    },
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
@@ -165,7 +171,14 @@ export const Home = () => {
           </p>
         </div>
         <div className="flex items-center justify-end gap-2 mb-4">
-          <Button onClick={exportData} size="sm" variant="ghost">
+          <Button
+            onClick={async () => {
+              const data = await exportAttendanceRecords();
+              await exportData({ attendance: data });
+            }}
+            size="sm"
+            variant="ghost"
+          >
             <ArrowUp size={20} />
           </Button>
           <Button onClick={importData} size="sm" variant="ghost">
@@ -260,32 +273,6 @@ export const Home = () => {
             setDeletingRecord(null);
           }}
         />
-      </Modal>
-
-      <Modal
-        isOpen={imported}
-        title={t("import.dataLabel")}
-        onClose={() => {
-          setImported(false);
-        }}
-      >
-        <Table
-          columns={columns.filter((col) => col.key !== "actions")}
-          data={
-            importedData && importedData.attendance
-              ? importedData.attendance.map((record) => ({
-                  ...record,
-                  actions: null,
-                  jobNumber:
-                    employeesMap.get(record.employeeId)?.jobNumber || null,
-                  employeeName:
-                    employeesMap.get(record.employeeId)?.name || null,
-                }))
-              : []
-          }
-          isRTL={i18n.language === "ar"}
-        />
-        {/* TODO: Add Actions to save imported data */}
       </Modal>
     </div>
   );
