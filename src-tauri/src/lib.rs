@@ -267,6 +267,35 @@ fn get_overtime_by_date_range(
   Ok(results)
 }
 
+// TODO: Add function to save imported employees
+#[tauri::command]
+pub fn import_employees(
+    employees: Vec<Employee>,
+    state: State<Db>,
+) -> Result<(), String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+
+    let tx = conn.transaction().map_err(|e| e.to_string())?;
+
+    for emp in employees {
+        tx.execute(
+            "INSERT OR REPLACE INTO employees (id, name, job_number, transportation)
+             VALUES (?1, ?2, ?3, ?4)",
+            params![
+                emp.id,
+                emp.name,
+                emp.job_number,
+                emp.transportation
+            ],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    tx.commit().map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
 #[tauri::command]
 fn migrate_from_local(db_path: tauri::State<'_, String>, employees_json: String, attendance_json: String) -> Result<(), String> {
   let mut conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
@@ -337,7 +366,8 @@ pub fn run() {
       delete_attendance,
       delete_attendance_by_employee_id,
       get_attendance_filtered,
-      get_overtime_by_date_range
+      get_overtime_by_date_range,
+      import_employees
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

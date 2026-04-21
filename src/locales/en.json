@@ -166,5 +166,14 @@
     "unknownError": "Unkown error",
     "table-empty-data": "No data available",
     "print-hint": "You can press Ctrl+P to print"
+  },
+  "import": {
+    "success": "Import successful",
+    "error": "Import failed",
+    "dataLabel": "Imported Data"
+  },
+  "export": {
+    "success": "Export successful",
+    "error": "Export failed"
   }
 }

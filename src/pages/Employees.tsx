@@ -5,10 +5,11 @@ import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 import toast from "react-hot-toast";
 import { useAttendance } from "../hooks/useAttendance";
-import { Edit, Plus, Trash } from "lucide-react";
+import { ArrowDown, ArrowUp, Edit, Plus, Trash } from "lucide-react";
 import { Employee, ITableColumn } from "../types";
 import CreateUpdateEmployeeForm from "../components/forms/CreateUpdateEmployeeForm";
 import { useEmployees } from "../contexts/Employees";
+import { useImportExport } from "../hooks/useImportExport";
 
 export const Employees = () => {
   const { employees, deleteEmployee } = useEmployees();
@@ -72,6 +73,9 @@ export const Employees = () => {
     },
   ];
 
+  const { exportData, importData, imported, setImported, importedData } =
+    useImportExport<{ employees: Employee[] }>({ keys: ["employees"] });
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -84,14 +88,24 @@ export const Employees = () => {
               {t ? t("employees.subtitle") : "Manage employees in your system"}
             </p>
           </div>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            size="sm"
-            variant="primary"
-            className="w-full md:w-auto flex items-center justify-center gap-2"
-          >
-            <Plus size={20} />
-          </Button>
+          <div className="flex gap-4 items-center">
+            <div className="flex gap-2 items-center">
+              <Button onClick={exportData} size="sm" variant="ghost">
+                <ArrowUp size={20} />
+              </Button>
+              <Button onClick={importData} size="sm" variant="ghost">
+                <ArrowDown size={20} />
+              </Button>
+            </div>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              size="sm"
+              variant="primary"
+              className="w-full md:w-auto flex items-center justify-center gap-2"
+            >
+              <Plus size={20} />
+            </Button>
+          </div>
         </div>
 
         {/* Desktop Table View */}
@@ -169,6 +183,28 @@ export const Employees = () => {
               {t ? t("employees.cancel") : "Cancel"}
             </Button>
           </div>
+        </Modal>
+
+        <Modal
+          isOpen={imported}
+          title={t("import.dataLabel")}
+          onClose={() => setImported(false)}
+        >
+          <Table
+            columns={columns.filter((col) => col.key !== "actions")}
+            data={
+              importedData && importedData.employees
+                ? importedData.employees.map((emp, index) => ({
+                    ...emp,
+                    _rowNumber: index + 1,
+                    actions: "",
+                  }))
+                : []
+            }
+            isRTL={i18n.language === "ar"}
+          />
+
+          {/* TODO: Add Actions to save imported data */}
         </Modal>
       </div>
     </div>

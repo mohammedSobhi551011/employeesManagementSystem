@@ -3,13 +3,15 @@ import { useTranslation } from "react-i18next";
 import { Table } from "../components/ui/Table";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
-import { Edit, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Edit, Trash2 } from "lucide-react";
 import { AttendanceRecord, ITableColumn } from "../types";
 import UpdateAttendanceRecordForm from "../components/forms/UpdateAttendanceRecordForm";
 import DeleteAttendanceRecordForm from "../components/forms/DeleteAttendanceRecordForm";
 import HomeFilterAttendanceForm from "../components/forms/HomeFilterAttendanceForm";
 import { useAttendanceFilter } from "../contexts/AttendanceFilter";
 import { useEmployees } from "../contexts/Employees";
+import { useImportExport } from "../hooks/useImportExport";
+import toast from "react-hot-toast";
 
 export const Home = () => {
   const { employees } = useEmployees();
@@ -139,6 +141,18 @@ export const Home = () => {
     },
   ];
 
+  const { exportData, importData, imported, setImported, importedData } =
+    useImportExport<{
+      attendance: AttendanceRecord[];
+    }>({
+      keys: ["attendance"],
+      onDataExported: () => toast.success(t("export.success")),
+      onDataImported: (data) => {
+        toast.success(t("import.success"));
+        console.log("imported data: ", data);
+      },
+    });
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -150,7 +164,14 @@ export const Home = () => {
             {t ? t("home.subtitle") : "View and search attendance records"}
           </p>
         </div>
-
+        <div className="flex items-center justify-end gap-2 mb-4">
+          <Button onClick={exportData} size="sm" variant="ghost">
+            <ArrowUp size={20} />
+          </Button>
+          <Button onClick={importData} size="sm" variant="ghost">
+            <ArrowDown size={20} />
+          </Button>
+        </div>
         {/* Filters Section */}
         <HomeFilterAttendanceForm
           handleClearFilters={() => {}}
@@ -239,6 +260,32 @@ export const Home = () => {
             setDeletingRecord(null);
           }}
         />
+      </Modal>
+
+      <Modal
+        isOpen={imported}
+        title={t("import.dataLabel")}
+        onClose={() => {
+          setImported(false);
+        }}
+      >
+        <Table
+          columns={columns.filter((col) => col.key !== "actions")}
+          data={
+            importedData && importedData.attendance
+              ? importedData.attendance.map((record) => ({
+                  ...record,
+                  actions: null,
+                  jobNumber:
+                    employeesMap.get(record.employeeId)?.jobNumber || null,
+                  employeeName:
+                    employeesMap.get(record.employeeId)?.name || null,
+                }))
+              : []
+          }
+          isRTL={i18n.language === "ar"}
+        />
+        {/* TODO: Add Actions to save imported data */}
       </Modal>
     </div>
   );
