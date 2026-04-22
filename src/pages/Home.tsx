@@ -153,7 +153,7 @@ export const Home = () => {
       toast.success(t("export.success"));
     },
     onDataImported: async (data) => {
-      await importAttendanceRecords(data.attendance);
+      await importAttendanceRecords(data);
       await loadFilteredData(currentPage);
       toast.success(t("import.success"));
     },

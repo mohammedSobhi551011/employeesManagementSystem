@@ -3,6 +3,7 @@ use tauri::Manager;
 use directories::ProjectDirs;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
+use serde::de::DeserializeOwned;
 
 
 #[allow(non_snake_case)]
@@ -33,6 +34,16 @@ struct AttendanceFilter {
   from_date: Option<String>,
   to_date: Option<String>,
   status: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct ImportEmployeesResponse {
+  employees: Vec<Employee>,
+}
+
+#[derive(Deserialize)]
+struct ImportAttendanceRecordsResponse {
+  attendance: Vec<AttendanceRecord>,
 }
 
 
@@ -272,17 +283,23 @@ fn get_overtime_by_date_range(
   Ok(results)
 }
 
+fn parse_dynamic<T>(json_str: &str)-> Result<T, String> where T: DeserializeOwned,{
+  serde_json::from_str(json_str).map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 fn import_employees(
     db_path: tauri::State<'_, String>,
-    employees: Vec<Employee>,
+    data: &str,
 ) -> Result<(), String> {
     let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
 
-    for emp in employees {
+    let parsed_data:ImportEmployeesResponse = parse_dynamic(data)?;
+
+    for emp in parsed_data.employees {
         conn.execute(
             "INSERT OR REPLACE INTO employees (id, name, jobNumber, transportation)
-             VALUES (?1, ?2, ?3, ?4)",
+              VALUES (?1, ?2, ?3, ?4)",
             params![
                 emp.id,
                 emp.name,
@@ -294,17 +311,20 @@ fn import_employees(
     }
 
     Ok(())
+
 }
 
 
 #[tauri::command]
 fn import_attendance_records(
     db_path: tauri::State<'_, String>,
-    records: Vec<AttendanceRecord>,
+    data: &str,
 ) -> Result<(), String> {
     let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
 
-    for rec in records {
+     let parsed_data:ImportAttendanceRecordsResponse = parse_dynamic(data)?;
+
+    for rec in parsed_data.attendance {
         conn.execute(
             "INSERT OR REPLACE INTO attendance (id, employeeId, date, status, jobNumber, note, hoursLate, overtimeHours) VALUES (?1,?2,?3,?4,?5,?6,?7,?8)",
             params![rec.id, rec.employeeId, rec.date, rec.status, rec.jobNumber, rec.note, rec.hoursLate, rec.overtimeHours],

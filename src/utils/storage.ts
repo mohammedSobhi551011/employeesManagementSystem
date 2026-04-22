@@ -62,9 +62,9 @@ export const getEmployeeById = async (
   return employees.find((emp) => emp.id === id);
 };
 
-export const importEmployees = async (data: Employee[]) => {
+export const importEmployees = async (data: string) => {
   try {
-    await invoke("import_employees", { employees: data });
+    await invoke("import_employees", { data });
   } catch (error) {
     console.log("Failed to import employees", error);
   }
@@ -191,9 +191,9 @@ export const getOvertimeByDateRange = async (
   }
 };
 
-export const importAttendanceRecords = async (data: AttendanceRecord[]) => {
+export const importAttendanceRecords = async (data: string) => {
   try {
-    await invoke("import_attendance_records", { records: data });
+    await invoke("import_attendance_records", { data });
   } catch (error) {
     console.log("Failed to import records", error);
   }

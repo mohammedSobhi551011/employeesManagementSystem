@@ -78,7 +78,7 @@ export const Employees = () => {
     {
       keys: ["employees"],
       onDataImported: async (data) => {
-        await importEmployees(data.employees);
+        await importEmployees(data);
         await loadEmployees();
         toast.success(t("import.success"));
       },
